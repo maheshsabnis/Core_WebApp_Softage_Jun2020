@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Core_WebApp.CustomFilters;
 using Core_WebApp.Models;
 using Core_WebApp.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,9 @@ namespace Core_WebApp.Controllers
     /// ActionMethos can be either HttpGet (Default) or HttpPost(HttpPut/HttpDelete)
     /// ActionMethod Retuens IActionResult interface
     /// </summary>
+    /// 
+    // applying filter at controller level
+    //[LogFilter]
     public class CategoryController : Controller
     {
         private readonly IRepository<Category, int> catRepository;
@@ -24,6 +28,8 @@ namespace Core_WebApp.Controllers
             this.catRepository = catRepository;
         }
 
+        // custom filter applied at action level
+       // [LogFilter] 
         public async Task<IActionResult> Index()
         {
             var cats = await catRepository.GetAsync();
@@ -38,19 +44,33 @@ namespace Core_WebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Category category)
         {
-            // check if the Cateogry Posted Model is valid
-            if (ModelState.IsValid)
-            {
-                // create a new Category Record
-                category = await catRepository.CraeteAsync(category);
-                // redirect to Index Page
-                return RedirectToAction("Index");
-            }
-            else
-            {
-                // else stey on the same page with errors
-                return View(category);
-            }
+            //try
+            //{
+                // check if the Cateogry Posted Model is valid
+                if (ModelState.IsValid)
+                {
+                    if (category.BasePrice < 0)
+                        throw new Exception("Base Price cannot ne -ve");
+                    // create a new Category Record
+                    category = await catRepository.CraeteAsync(category);
+                    // redirect to Index Page
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    // else stey on the same page with errors
+                    return View(category);
+                }
+            //}
+            //catch (Exception ex)
+            //{
+            //    return View("Error", new ErrorViewModel()
+            //    { 
+            //       ControllerName =  this.RouteData.Values["controller"].ToString(),
+            //       ActionName = this.RouteData.Values["action"].ToString(),
+            //       ExceptionMessage = ex.Message
+            //    });
+            //}
         }
 
         public async Task<IActionResult> Edit(int id)

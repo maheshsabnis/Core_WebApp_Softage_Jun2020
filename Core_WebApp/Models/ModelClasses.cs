@@ -18,6 +18,7 @@ namespace Core_WebApp.Models
         [StringLength(200)]
         public string CategoryName { get; set; }
         [Required(ErrorMessage ="base Price Cannot be null")]
+       // [NumericValidator(ErrorMessage = "Value Cannot be -ve")]
         public int BasePrice { get; set; }
         // One-to-Many relationship
         public ICollection<Product> Products { get; set; }
@@ -42,5 +43,20 @@ namespace Core_WebApp.Models
         public int CategoryRowId { get; set; }
         // One-to-One Relationship
         public Category Category { get; set; }
+    }
+
+    /// <summary>
+    /// Custom Attribute class for Custom Validator
+    /// </summary>
+    public class NumericValidatorAttribute : ValidationAttribute
+    {
+        public override bool IsValid(object value)
+        {
+            if (Convert.ToInt32(value) < 0)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

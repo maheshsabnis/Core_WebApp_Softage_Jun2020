@@ -107,9 +107,35 @@
 		- asp-validation-summary, show validations
 		- asp-for, for binding Model class property to the HTML input test elements
 		- asp-items, iterate over the collections from the model class
+	- One View Can have "Only-One" model object
+		- If the View needs additional data than the Model Properties then
+			pass this additional data to View Using ViewBag.
+		- IMP
+			- If the View is posted using <form> then the ViewBag
+				key must match with the Property from Model class that is 
+				to be posted using HttpPost
+			- e.g. is Product Create View is posted with Product Model class
+				then for displaying CategoryName instead of CategoryRowId
+				use ViewBag.CategoryRowId as key	
 7. Create Filters
 	- Request Procesing
 	- filter Creation and Filter Registration
+	- ActionFilterAttribute is the abstract base class for all filters
+	- For custom filters, derive class from ActionFilterAttribute and
+	override its virtual methods
+	- ExceptionFilter, ResultFilter, etc.
+	- Request Validation using 2 ways
+		- Model Validation, data annotations (standard or custom)
+		- Exception Handling, used in case of Process Based request 
+			Validation
+		- The Custom Exception Filter, must derived from 
+			ExceptionFilterAttribute class and must override OnException()
+			method
+			- OnException() method accepts ExceptionContext object
+				- This object is used for
+					- Listening to Raised Exception using 'Exception' property
+					- Handleing Exception
+					- Returning the Result
 8. Secure the Application
 	- User and Role Based Security
 	- Policy Based Security
@@ -138,3 +164,12 @@ the product table should show only those products from the selected category.
 
 
 
+Assignment 2: Log the exception in Database
+1. Create a new Model class for with properties for loggin exception
+	- Controller Name
+	- Action NAme
+	- Exceprtion Message
+	- Date and Time
+2. Generate Db Migrations
+3. Inject the DbContext in the Custom Exception Filter
+4. Log the exception

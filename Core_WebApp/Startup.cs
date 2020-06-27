@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Core_WebApp.Models;
 using Core_WebApp.Services;
+using Core_WebApp.CustomFilters;
 
 namespace Core_WebApp
 {
@@ -67,9 +68,13 @@ namespace Core_WebApp
 
             // register repository classes in DI Container
             services.AddScoped<IRepository<Category, int>, CategoryRepository>();
-
+            services.AddScoped<IRepository<Product, int>, ProductRepository>();
             // The MVC COntroller and View Request Procvessing
-            services.AddControllersWithViews();
+            // configuring the Filters
+            services.AddControllersWithViews(options => {
+                options.Filters.Add(new LogFilterAttribute());
+                options.Filters.Add(typeof(BusinessExceptionFilter));
+            });
             // The Razor Pages Execution (Need for the Indentity Pages e.g. register/login)
             services.AddRazorPages();
         }
