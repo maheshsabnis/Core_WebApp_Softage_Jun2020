@@ -139,12 +139,44 @@
 8. Secure the Application
 	- User and Role Based Security
 	- Policy Based Security
+	- Microsoft.AspNetCore.Identity.UI
+		- Procide the 'Default Razor View Library' for User Registration and Login
+		- Microsoft.AspNetCore.Identity Assembly
+			- UserManager<IdentityUser>
+				- User Management to Create/Delete/Edit users for the application
+			- RoleManager<IdentityRole>
+				- Role Management class to create/edit/delete roles
+			- SignInManager<IdentityUser>
+				- Manage the User SignIn process by accepting IdentityUser object with UserName and Password
+	- Microsoft.AspNetCore.Identity.EntityFrameworkCore
+		- Provides IdentityUser and IdentotyRole classses and generate Tables to store user,roles, claims, userinroles in database
+	- Define Policies to Group Roles to define access
 9. Create WEB API
 	- Http Method and Contracts
 10. Create Middleware
 	- CReating Middlewares in Request Processing
 11. Secure WEB API
 	- JWT Authentication
+12. ASP.NET Core Sessions
+	- HttpContext.Session
+		- Session is type of ISession
+			- SetInt32() / GetInt32(), methods for saving / retrieving interger 
+					value in session
+		- SetString() / GetString(), methods for saving / retrieving string 
+					value in session
+	- Session Service configuration in ConfigureServices() method of StartUp 
+		class
+			- services.AddSession(<SessionOptions>)
+				- IdleTimeOut
+			- Configure the Service for DistributedMemoryCache()
+				- The cache managed and maintained by the Hosting process
+				to maintain the session state in Hosting process
+
+
+
+
+
+
 
 ===================================================================
 Microsoft.AspNetCore.App

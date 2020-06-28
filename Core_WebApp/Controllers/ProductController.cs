@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Core_WebApp.CustomSessions;
 using Core_WebApp.Models;
 using Core_WebApp.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -28,9 +30,21 @@ namespace Core_WebApp.Controllers
             this.catRepository = catRepository;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var prds = await prdRepository.GetAsync();
+            List<Product> prds = new List<Product>();
+            var cat = HttpContext.Session.GetSessionData<Category>("Category");
+            var id = HttpContext.Session.GetInt32("CategoryRowId");
+            if (id > 0)
+            {
+                prds = (from p in prdRepository.GetAsync().Result.ToList()
+                        where p.CategoryRowId == id
+                        select p).ToList();
+            }
+            else
+            {
+                prds = prdRepository.GetAsync().Result.ToList();
+            }
             return View(prds);
         }
 

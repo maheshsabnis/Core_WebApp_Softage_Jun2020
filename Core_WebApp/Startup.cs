@@ -63,8 +63,40 @@ namespace Core_WebApp
                 );
 
             // The Identityt Management for Authentication
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            // SignIn.RequireConfirmedAccount = true
+            // Verify the Email
+            // Used for only 'UserManager<IdentityUser>' resolve
+            //services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            //    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            // Resolve follwoing classsed from DI
+            // UserManager<IdentityUser>
+            // RoleManager<IdentityRole>
+            services.AddIdentity<IdentityUser,IdentityRole>()
+               .AddEntityFrameworkStores<ApplicationDbContext>();
+
+
+            // define policies
+
+            services.AddAuthorization(options => {
+
+                options.AddPolicy("readpolicy", policy =>
+                {
+                    policy.RequireRole("Manager", "Clerk", "Operator"); 
+                });
+
+                options.AddPolicy("writepolicy", policy =>
+                {
+                    policy.RequireRole("Manager", "Clerk");
+                });
+            });
+
+            // add the distributed memory cache service and session
+            services.AddDistributedMemoryCache();
+            services.AddSession(session => {
+                session.IdleTimeout = TimeSpan.FromMinutes(20);
+            });
+            // ends
 
             // register repository classes in DI Container
             services.AddScoped<IRepository<Category, int>, CategoryRepository>();
@@ -72,8 +104,8 @@ namespace Core_WebApp
             // The MVC COntroller and View Request Procvessing
             // configuring the Filters
             services.AddControllersWithViews(options => {
-                options.Filters.Add(new LogFilterAttribute());
-                options.Filters.Add(typeof(BusinessExceptionFilter));
+              // options.Filters.Add(new LogFilterAttribute());
+               // options.Filters.Add(typeof(BusinessExceptionFilter));
             });
             // The Razor Pages Execution (Need for the Indentity Pages e.g. register/login)
             services.AddRazorPages();
@@ -102,10 +134,11 @@ namespace Core_WebApp
 
             // create routing table and verify the route expression
             app.UseRouting();
-            // security
-            app.UseAuthentication();
-            app.UseAuthorization();
+            app.UseSession(); // the session
 
+            // security
+            app.UseAuthentication(); // user management to verify user
+            app.UseAuthorization(); // role management to verify roles
             // publish the application on Host http Endpoint
             app.UseEndpoints(endpoints =>
             {

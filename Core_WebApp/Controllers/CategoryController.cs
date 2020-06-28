@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Core_WebApp.CustomFilters;
+using Core_WebApp.CustomSessions;
 using Core_WebApp.Models;
 using Core_WebApp.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Core_WebApp.Controllers
@@ -17,6 +20,8 @@ namespace Core_WebApp.Controllers
     /// 
     // applying filter at controller level
     //[LogFilter]
+
+    
     public class CategoryController : Controller
     {
         private readonly IRepository<Category, int> catRepository;
@@ -30,12 +35,16 @@ namespace Core_WebApp.Controllers
 
         // custom filter applied at action level
        // [LogFilter] 
+
+//        [Authorize(Roles = "Manager,Clerk,Operator")]
+        [Authorize(Policy = "readpolicy")]
         public async Task<IActionResult> Index()
         {
             var cats = await catRepository.GetAsync();
             return View(cats);
         }
-
+        //   [Authorize(Roles = "Manager,Clerk")]
+        [Authorize(Policy = "writepolicy")]
         public IActionResult Create()
         {
             return View(new Category());
@@ -105,5 +114,15 @@ namespace Core_WebApp.Controllers
             var res = await catRepository.DeleteAsync(id);
             return RedirectToAction("Index");
         }
+
+        public IActionResult ShowProducts(int id)
+        {
+            HttpContext.Session.SetInt32("CategoryRowId", id);
+            var cat = catRepository.GetAsync(id).Result;
+
+            HttpContext.Session.SetSessionData<Category>("Category", cat);
+            return RedirectToAction("Index", "Product");
+        }
+
     }
 }
