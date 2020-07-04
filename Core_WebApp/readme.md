@@ -153,8 +153,40 @@
 	- Define Policies to Group Roles to define access
 9. Create WEB API
 	- Http Method and Contracts
+	- Http request Model Binder
+		- FromBody
+			- Map data from Body to CLR object
+		- FromRoute
+			- Map data from Route to CLR object
+		- FromQuery	
+			- Map data from QueryString to CLR object
+		- FromForm
+			- Map data from HTML form post to CLR object
+	- CORS Configuration
+		- The WEB API must understand the CORS request
+			- AddCors() service method in ConfigureServices() of startup class for
+				- Origin/method/herader
+			- UseCors()
+				- Middleware to configure the CORS from COnfogureServices() in request processing
+	- WEB API Documentation using 'Swagger'
+		- Custom Defined third-party WEB API Documentation Engine
+		- Generate UI and JSON for the API Documentation
+		- The custom of your WEB API can use the Swagger UI to Test the API method befor calling them
+		- Swagger Gen Package and Swagger UI package
+			- These packages generate documentation and UI together
+		- Generate Doc. Schmeas
+			- ClassName/MethodName/Parameter
+			- MethodType
 10. Create Middleware
 	- CReating Middlewares in Request Processing
+	- The class that is constructor injected using 'RequestDelegate', this is resolved by using
+	the ICconfiguration  interface
+	- The RequestDelegate is a delegate that executed a method having input parameter as HttpContext
+	- This method contains the logic for middleware
+	- To register the custom middleware in Request Pipeline
+		- We have to create a Extension class having extension method for IApplicationBuilder interface
+			- This interface has 'UseMiddleware<T>()' generic method whete T is the 
+				custom middleware class to be registered in Http Request Pipeline
 11. Secure WEB API
 	- JWT Authentication
 12. ASP.NET Core Sessions

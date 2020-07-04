@@ -15,6 +15,8 @@ using Microsoft.Extensions.Hosting;
 using Core_WebApp.Models;
 using Core_WebApp.Services;
 using Core_WebApp.CustomFilters;
+using Microsoft.OpenApi.Models;
+using Core_WebApp.Middlewares;
 
 namespace Core_WebApp
 {
@@ -75,6 +77,24 @@ namespace Core_WebApp
             services.AddIdentity<IdentityUser,IdentityRole>()
                .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            // configure the CORS service
+            services.AddCors(options => {
+                options.AddPolicy("corspolicy", policy =>
+                {
+                    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                });
+            });
+            // ends here
+
+            // configure the swagger service
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", 
+                    new OpenApiInfo { Title = "ASP.NET Core API", Version = "v1" });
+            });
+
+            // ends here
+
 
             // define policies
 
@@ -103,10 +123,17 @@ namespace Core_WebApp
             services.AddScoped<IRepository<Product, int>, ProductRepository>();
             // The MVC COntroller and View Request Procvessing
             // configuring the Filters
+            // AddControllersWithViews --> used for processing MVC Controller with views
+            // and API Controllers
             services.AddControllersWithViews(options => {
               // options.Filters.Add(new LogFilterAttribute());
                // options.Filters.Add(typeof(BusinessExceptionFilter));
             });
+            // used for processing the WEB API Controller
+            services.AddControllers()
+                  .AddJsonOptions(options => {
+                      options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                  }); 
             // The Razor Pages Execution (Need for the Indentity Pages e.g. register/login)
             services.AddRazorPages();
         }
@@ -136,9 +163,26 @@ namespace Core_WebApp
             app.UseRouting();
             app.UseSession(); // the session
 
+            // configure the CORS middleware
+            app.UseCors("corspolicy");
+
+            // configure the swagger middleware
+            app.UseSwagger();
+
+            // provide / respond the HTML UI
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ASP.NET Core API Documentation");
+            });
+
+
             // security
             app.UseAuthentication(); // user management to verify user
             app.UseAuthorization(); // role management to verify roles
+
+            // Register the Custom Exception Middleware
+            app.CustomExceptionMiddleware();
+
             // publish the application on Host http Endpoint
             app.UseEndpoints(endpoints =>
             {
